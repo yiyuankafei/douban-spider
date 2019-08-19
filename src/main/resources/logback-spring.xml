@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <!-- 日志输出路径 -->
+    <springProperty scope="context" name="logging.path" source="logging.path" defaultValue=""/>
+    <!-- 日志输出级别 -->
+    <springProperty scope="context" name="logging.level" source="logging.level" defaultValue=""/>
+    <!-- 文件输出格式 -->
+    <property name="PATTERN"
+              value="[%date{yyyy-MM-dd HH:mm:ss.SSS}] [%X{traceNo}] [%thread] %-5level %logger:%M %line  --%mdc{client} %msg%n"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+    <!-- 每天产生一个文件 -->
+    <appender name="File" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 文件路径 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 文件名称 -->
+            <fileNamePattern>/spider/logs/uni-%d{yyyy_MM_dd}-%i.log</fileNamePattern>
+            <!-- 文件最大保存历史数量 -->
+            <maxHistory>30</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>350MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${PATTERN}</pattern>
+        </layout>
+    </appender>
+    <!-- 下面配置一些第三方包的日志过滤级别，用于避免刷屏 -->
+    <logger name="com.mchange" level="INFO"/>
+    <logger name="org.mybatis" level="INFO"/>
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.apache.zookeeper" level="INFO"/>
+    <logger name="java.sql.Connection" level="INFO"/>
+    <logger name="java.sql.ResultSet" level="INFO"/>
+    <logger name="java.sql.PreparedStatement" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <root level="INFO">
+        <appender-ref ref="File"/>
+    </root>
+
+</configuration>

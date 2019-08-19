@@ -1,0 +1,27 @@
+spring:
+    profiles:
+        active: dev
+    applicaiton:
+        name: douban-spider
+    thymeleaf: # 禁用thymeleaf緩存
+        cache: false
+    http:
+        multipart:
+            max-file-size: 52428800
+server:
+    port: 9099
+    tomcat:
+        basedir: tomcat
+        accesslog:
+            enabled: true
+            directory: logs
+            pattern: "%{X-Forwarded-For}i %{userToken}i - %h %l %u %t \"%r\" %s %b %D %F %T"
+            rotate: true
+            buffered: true
+            rename-on-rotate: true
+            prefix: localhost_access_log
+            suffix: .txt
+
+mybatis:
+    typeAliasesPackage: com.application.entity
+    mapper-locations: classpath:com/application/mapper/*Mapper.xml
