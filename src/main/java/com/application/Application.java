@@ -8,7 +8,7 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 
 
 @SpringBootApplication
-@MapperScan({"com.application.mapper"})
+@MapperScan({"com.application.mapper", "com.application.mapper.custom"})
 public class Application extends SpringBootServletInitializer implements CommandLineRunner {
 	
 	public static void main(String[] args) {

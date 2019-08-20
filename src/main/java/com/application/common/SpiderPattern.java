@@ -14,5 +14,10 @@ public class SpiderPattern {
 	 * 书籍-作者名
 	 */
 	public static String BOOK_AUTHOR = "\"@type\": \"Person\",\\s*\"name\": \"(.+)\"";
+	
+	/**
+	 * 书籍标签
+	 */
+	public static String BOOK_TAG =  "<a href=\"/tag/(.+)\">";
 
 }
