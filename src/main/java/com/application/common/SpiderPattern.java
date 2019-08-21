@@ -3,21 +3,31 @@ package com.application.common;
 public class SpiderPattern {
 	
 	/**
-	 * 书籍-出版机构
+	 * 豆瓣书籍-出版机构
 	 */
-	public static String BOOK_PUB_ORG = "<span class=\"pl\">出版社:</span>(.+)<br/>";
+	public static String DOUBAN_BOOK_PUB_ORG = "<span class=\"pl\">出版社:</span>(.+)<br/>";
 	/**
-	 * 书籍-出版日期
+	 * 豆瓣书籍-出版日期
 	 */
-	public static String BOOK_PUB_DATE = "<span class=\"pl\">出版年:</span>(.+)<br/>";
+	public static String DOUBAN_BOOK_PUB_DATE = "<span class=\"pl\">出版年:</span>(.+)<br/>";
 	/**
-	 * 书籍-作者名
+	 * 豆瓣书籍-作者名
 	 */
-	public static String BOOK_AUTHOR = "\"@type\": \"Person\",\\s*\"name\": \"(.+)\"";
+	public static String DOUBAN_BOOK_AUTHOR = "\"@type\": \"Person\",\\s*\"name\": \"(.+)\"";
 	
 	/**
-	 * 书籍标签
+	 * 豆瓣书籍标签
 	 */
-	public static String BOOK_TAG =  "<a href=\"/tag/(.+)\">";
+	public static String DOUBAN_BOOK_TAG =  "<a href=\"/tag/(.+)\">";
+	
+	/**
+	 * 当当书籍标签
+	 */
+	public static String DANGDANG_BOOK_TAG =  "<a href=\"/tag/(.+)\">";
+	
+	/**
+	 * 当当分页标签
+	 */
+	public static String DANGDANG_BOOK_TAG_PAGENUMBER =  "bottom-page-turn\">(\\w+)</a>";
 
 }

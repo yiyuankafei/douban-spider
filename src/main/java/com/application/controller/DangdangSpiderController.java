@@ -21,56 +21,55 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.druid.util.StringUtils;
 import com.application.common.SpiderPattern;
 import com.application.common.SpirderUrl;
-import com.application.config.HttpClientPool;
 import com.application.config.ProxyPool;
 import com.application.entity.Book;
-import com.application.entity.BookTag;
-import com.application.entity.BookTagExample;
+import com.application.entity.DangdangBookTag;
+import com.application.entity.DangdangBookTagExample;
 import com.application.service.BookService;
-import com.application.service.BookTagService;
+import com.application.service.DangdangBookTagService;
 import com.application.util.HttpClientUtil;
 
 @RestController
 @Slf4j
-public class SpiderController {
+public class DangdangSpiderController {
 	
 	@Autowired
 	BookService bookService;
 	
 	@Autowired
-	BookTagService bookTagService;
+	DangdangBookTagService dangdangTagService;
 	
-	@Autowired
-    HttpClientPool httpClientPool;
+	private static  ExecutorService threadPool = Executors.newFixedThreadPool(1);
 	
-	private static  ExecutorService threadPool = Executors.newFixedThreadPool(10);
-	
-	@RequestMapping("/douban/book/tag")
+	@RequestMapping("/dangdang/book/tag")
 	public void createTag() throws Exception {
 		generateTags();
 	}
 	
-	@RequestMapping("/douban/book")
+	@RequestMapping("/dangdang/book/tag/pageNumber")
+	public void createTagPageNumber() throws Exception {
+		generateTagsPageNumber();
+	}
+	
+	@RequestMapping("/dangdang/book")
 	public void generat() throws Exception {
 		
 		//爬虫并发数限制10
-		Semaphore semaphore = new Semaphore(10,true);
+		Semaphore semaphore = new Semaphore(1,true);
 		//初始化代理池
-		ProxyPool.fillProxyPool();
+		//ProxyPool.fillProxyPool();
 		
-		BookTagExample example = new BookTagExample();
-		example.createCriteria().andIdGreaterThan(0);
-		List<BookTag> bookTagList = bookTagService.selectByExample(example);
+		DangdangBookTagExample example = new DangdangBookTagExample();
+		example.createCriteria().andTagUrlLike("%cp%");
+		List<DangdangBookTag> bookTagList = dangdangTagService.selectByExample(example);
 		
 		//遍历标签
 		bookTagList.forEach(bookTag -> {
-			String tag = bookTag.getTagName();
-			//豆瓣分页限制，最多只能爬取50页数据
-			Integer pageCount = bookTag.getPageNum() > 50 ? 50 : bookTag.getPageNum();
-			String baseUrl = SpirderUrl.BOOK_TAG_BASE + tag;
+			String url = bookTag.getTagUrl();
+			String baseUrl = SpirderUrl.DANGDANG_BOOK_BASE;
 			try {
-				for (int i = 0; i < pageCount; i++) {
-					String targetUrl = baseUrl + "?start=" + i * 20;
+				for (int i = 0; i < bookTag.getPageNum(); i++) {
+					String targetUrl = baseUrl + "pg" + i + "-" + url.replace(baseUrl, "");
 					semaphore.acquire();
 					threadPool.execute(new bookSpider(targetUrl, semaphore));
 				}
@@ -144,40 +143,56 @@ public class SpiderController {
 	}
 	
 	private void generateTags() throws Exception {
-		
 		//获取所有标签
-		String webContent = HttpClientUtil.doGet(SpirderUrl.BOOK_TAG_BASE);
-        Pattern pattern = Pattern.compile(SpiderPattern.BOOK_TAG);
-        Matcher matcher = pattern.matcher(webContent);
-        
-        while (matcher.find()) {
-        	String tagName = matcher.group(1);
-        	//每个标签请求一次详情页，获取页码
-            webContent = HttpClientUtil.doGet(SpirderUrl.BOOK_TAG_BASE + tagName);
-            Document doc = Jsoup.parse(webContent);
-    		Integer maxPage = 1;
-    		try {
-    			Element paginatorElement = doc.select(".paginator").get(0);
-        		Elements pageElements = paginatorElement.select("a");
-        		for (Element page : pageElements) {
-        			String text = page.text();
-        			if (StringUtils.isNumber(text)) {
-        				Integer thisPage = Integer.parseInt(text);
-            			if (thisPage > maxPage) {
-            				maxPage = thisPage;
-            			}
-        			}
-        			
-        		}
-    		} catch (Exception e) {
-    			log.info("页面无分页");
-    		}
-    		
-    		BookTag bookTag = new BookTag();
-    		bookTag.setTagName(tagName);
-    		bookTag.setPageNum(maxPage);
-    		bookTagService.insert(bookTag);
-        }
+		String webContent = HttpClientUtil.doGet(SpirderUrl.DANGDANG_BOOK_TAG_BASE);
+		
+		Document doc = Jsoup.parse(webContent);
+		Elements elements = doc.select("a[ddt-src]");
+		elements.forEach(element -> {
+			String tagName = element.attr("title");
+			String url = element.attr("ddt-src");
+			DangdangBookTag tag = new DangdangBookTag();
+			tag.setTagName(tagName);
+			tag.setTagUrl(url);
+			dangdangTagService.insert(tag);
+		});
+	}
+	
+	private void generateTagsPageNumber() throws Exception {
+		
+		Pattern pattern = Pattern.compile(SpiderPattern.DANGDANG_BOOK_TAG_PAGENUMBER);
+		
+		DangdangBookTagExample example = new DangdangBookTagExample();
+		example.createCriteria().andTagUrlLike("%cp%");
+		List<DangdangBookTag> list = dangdangTagService.selectByExample(example);
+		list.forEach(tag -> {
+			Integer pageNumber = 1;
+			String webContent = HttpClientUtil.doGet(tag.getTagUrl());
+			Matcher matcher = pattern.matcher(webContent);
+			while (matcher.find()) {
+				pageNumber = Integer.parseInt(matcher.group(1));
+			}
+			tag.setPageNum(pageNumber);
+			dangdangTagService.updateByPrimaryKey(tag);
+		});
+	}
+	
+	public static void main(String[] args) throws Exception {
+		/*//获取所有标签
+				String webContent = HttpClientUtil.doGet(SpirderUrl.DANGDANG_BOOK_TAG_BASE);
+				
+				Document doc = Jsoup.parse(webContent);
+				Elements elements = doc.select("a[ddt-src]");
+				elements.forEach(element -> {
+					String tagName = element.attr("title");
+					String url = element.attr("ddt-src");
+					System.out.println(tagName);
+					System.out.println(url);
+				});*/
+		System.out.println(1);
+		String s = "http://category.dangdang.com/cp51.12.00.00.00.00.html";
+		String x = "http://category.dangdang.com/";
+		System.out.println(s.replace(x, ""));
 	}
 
 }

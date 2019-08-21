@@ -20,15 +20,15 @@ import com.application.entity.IpProxy;
 
 public class HttpClientUtil {
 	
-	public static String doGet(String url) throws Exception {
+	public static String doGet(String url)  {
 		
 		while(true) {
 			HttpGet httpGet = new HttpGet(url);
 			
-			IpProxy ipProxy = ProxyPool.getInstance();
+			/*IpProxy ipProxy = ProxyPool.getInstance();
 			HttpHost proxy = new HttpHost(ipProxy.getIp(), ipProxy.getPort());
 			RequestConfig config = RequestConfig.custom().setProxy(proxy).build();  
-	        httpGet.setConfig(config);
+	        httpGet.setConfig(config);*/
 			
 			
 	        String webContent = "";
@@ -37,24 +37,24 @@ public class HttpClientUtil {
 		        CloseableHttpResponse getResponse = getClient.execute(httpGet);
 	        	HttpEntity entity = getResponse.getEntity();
 		        webContent = EntityUtils.toString(entity, "UTF-8");
-		        if (getResponse.getStatusLine().getStatusCode() != 200) {
+		        /*if (getResponse.getStatusLine().getStatusCode() != 200) {
 		        	ProxyPool.changeProxy(ipProxy.getIp());
 		        	System.out.println("webContent================" + webContent);
 		        	continue;
-		        }
-	        } catch (TruncatedChunkException | SSLException | NoHttpResponseException  e) {
+		        }*/
+	        } catch (Exception  e) {
 	        	e.printStackTrace();
 	        	//丢包重试
 	        	continue;
 	        }
 	        
-	        if (webContent.length() < 5000) {
+	        /*if (webContent.length() < 5000) {
 	        	System.out.println("#################################");
 	        	System.out.println(webContent);
 	        	System.out.println("#################################");
 	        	ProxyPool.changeProxy(ipProxy.getIp());
 	        	continue;
-	        }
+	        }*/
 	        
 	        
 	        return webContent;

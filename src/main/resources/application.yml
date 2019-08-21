@@ -9,7 +9,7 @@ spring:
         multipart:
             max-file-size: 52428800
 server:
-    port: 9099
+    port: 9098
     tomcat:
         basedir: tomcat
         accesslog:
