@@ -12,16 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.alibaba.druid.util.StringUtils;
 import com.application.common.SpiderPattern;
 import com.application.common.SpirderUrl;
-import com.application.config.ProxyPool;
 import com.application.entity.Book;
 import com.application.entity.DangdangBookTag;
 import com.application.entity.DangdangBookTagExample;
@@ -39,7 +36,7 @@ public class DangdangSpiderController {
 	@Autowired
 	DangdangBookTagService dangdangTagService;
 	
-	private static  ExecutorService threadPool = Executors.newFixedThreadPool(1);
+	private static  ExecutorService threadPool = Executors.newFixedThreadPool(10);
 	
 	@RequestMapping("/dangdang/book/tag")
 	public void createTag() throws Exception {
@@ -55,7 +52,7 @@ public class DangdangSpiderController {
 	public void generat() throws Exception {
 		
 		//爬虫并发数限制10
-		Semaphore semaphore = new Semaphore(1,true);
+		Semaphore semaphore = new Semaphore(10,true);
 		//初始化代理池
 		//ProxyPool.fillProxyPool();
 		
@@ -96,34 +93,36 @@ public class DangdangSpiderController {
 			try {
 				String content = HttpClientUtil.doGet(url);
 				Document doc = Jsoup.parse(content);
-				Elements elements = doc.select(".subject-item");
+				Elements elements = doc.select(".bigimg li");
 				System.out.println("====开始抓取书籍完毕：" + url);
 				List<Book> bookList = new ArrayList<Book>();
 				elements.forEach(element -> {
-					Element img = element.select(".pic img").get(0);
-					Element info = element.select(".info").get(0);
-					Element pub = info.select(".pub").get(0);
-					String pubString = pub.text();
-					String[] pubInfo = pubString.split("/");
 					
 					Book book = new Book();
-					book.setTitle(info.select("h2 a").get(0).attr("title"));
-					book.setCoverUrl(img.attr("src"));
-					book.setAuthor(pubInfo[0].trim());
-					if (pubInfo.length > 1) {
-						try {
-							if (book.getAuthor().indexOf("[") > 0) {
-								book.setPubOrg(pubInfo[2].trim());
-								book.setPubDate(pubInfo[3].trim());
-							} else {
-								book.setPubOrg(pubInfo[1].trim());
-								book.setPubDate(pubInfo[2].trim());
-							}
-						} catch (Exception e) {
-							log.error("抓取出本信息异常，图书名：{},链接地址：{}", book.getTitle(), url);
-						}
-						
+					
+					try {
+						book.setTitle(element.select("p[name=title] a").get(0).attr("title"));
+						book.setCoverUrl(element.select("a[name=itemlist-picture] img").get(0).attr("src"));
+					} catch (Exception e) {
+						log.info("[{}]没有封面", book.getTitle());
 					}
+					
+					try {
+						book.setAuthor(element.select("a[name=itemlist-author]").get(0).text());
+					} catch (Exception e) {
+						log.info("[{}]没有作者", book.getTitle());
+					}
+					try {
+						book.setPubOrg(element.select("a[name=P_cbs]").get(0).text());
+					} catch (Exception e) {
+						log.info("[{}]没有出版机构", book.getTitle());
+					}
+					try {
+						book.setPubDate(element.select(".search_book_author").get(0).select("span").get(1).text().substring(1));
+					} catch (Exception e) {
+						log.info("[{}]没有出版日期", book.getTitle());
+					}
+					
 					bookList.add(book);
 				});
 				bookService.insertBatch(bookList);
