@@ -8,7 +8,7 @@ public class SpirderUrl {
 	public static String DOUBAN_BOOK_TAG_BASE = "https://book.douban.com/tag/";
 	
 	/**
-	 * 当当书籍-标签
+	 * 当当书籍-根路径
 	 */
 	public static String DANGDANG_BOOK_TAG_BASE = "http://book.dangdang.com/";
 	

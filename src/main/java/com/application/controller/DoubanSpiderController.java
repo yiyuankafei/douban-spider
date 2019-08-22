@@ -30,6 +30,10 @@ import com.application.service.BookService;
 import com.application.service.BookTagService;
 import com.application.util.HttpClientUtil;
 
+/**
+ * 
+ * 根据标签爬取豆瓣书籍信息
+ */
 @RestController
 @Slf4j
 public class DoubanSpiderController {
@@ -45,11 +49,48 @@ public class DoubanSpiderController {
 	
 	private static  ExecutorService threadPool = Executors.newFixedThreadPool(10);
 	
+	/**
+	 * 
+	 * 获取所有标签，以及标签对应数据页数
+	 */
 	@RequestMapping("/douban/book/tag")
 	public void createTag() throws Exception {
-		generateTags();
+		//获取所有标签
+		String webContent = HttpClientUtil.doGet(SpirderUrl.DOUBAN_BOOK_TAG_BASE);
+        Pattern pattern = Pattern.compile(SpiderPattern.DOUBAN_BOOK_TAG);
+        Matcher matcher = pattern.matcher(webContent);
+        
+        while (matcher.find()) {
+        	String tagName = matcher.group(1);
+        	//每个标签请求一次详情页，获取页码
+            webContent = HttpClientUtil.doGet(SpirderUrl.DOUBAN_BOOK_TAG_BASE + tagName);
+            Document doc = Jsoup.parse(webContent);
+    		Integer maxPage = 1;
+    		try {
+    			Element paginatorElement = doc.select(".paginator").get(0);
+        		Elements pageElements = paginatorElement.select("a");
+        		for (Element page : pageElements) {
+        			String text = page.text();
+        			if (StringUtils.isNumber(text)) {
+        				maxPage = Integer.parseInt(text);
+        			}
+        			
+        		}
+    		} catch (Exception e) {
+    			log.info("页面无分页");
+    		}
+    		
+    		BookTag bookTag = new BookTag();
+    		bookTag.setTagName(tagName);
+    		bookTag.setPageNum(maxPage);
+    		bookTagService.insert(bookTag);
+        }
 	}
 	
+	/**
+	 * 
+	 * 获取书籍信息
+	 */
 	@RequestMapping("/douban/book")
 	public void generat() throws Exception {
 		
@@ -98,7 +139,7 @@ public class DoubanSpiderController {
 				String content = HttpClientUtil.doGet(url);
 				Document doc = Jsoup.parse(content);
 				Elements elements = doc.select(".subject-item");
-				System.out.println("====开始抓取书籍完毕：" + url);
+				log.info("====开始抓取书籍完毕：", url);
 				List<Book> bookList = new ArrayList<Book>();
 				elements.forEach(element -> {
 					Element img = element.select(".pic img").get(0);
@@ -128,56 +169,19 @@ public class DoubanSpiderController {
 					bookList.add(book);
 				});
 				bookService.insertBatch(bookList);
-				System.out.println("====抓取书籍完毕：" + url);
+				log.info("====抓取书籍完毕：", url);
 			} catch (Exception e) {
 				e.printStackTrace();
 				//TODO 抓取失败URL入库
-				System.out.println("******************");
-				System.out.println("====抓取书籍发生异常：" + url);
-				System.out.println("******************");
+				log.info("******************");
+				log.info("====抓取书籍发生异常：", url);
+				log.info("******************");
 			} finally {
 				semaphore.release();
 			}
 			
 		}
 		
-	}
-	
-	private void generateTags() throws Exception {
-		
-		//获取所有标签
-		String webContent = HttpClientUtil.doGet(SpirderUrl.DOUBAN_BOOK_TAG_BASE);
-        Pattern pattern = Pattern.compile(SpiderPattern.DOUBAN_BOOK_TAG);
-        Matcher matcher = pattern.matcher(webContent);
-        
-        while (matcher.find()) {
-        	String tagName = matcher.group(1);
-        	//每个标签请求一次详情页，获取页码
-            webContent = HttpClientUtil.doGet(SpirderUrl.DOUBAN_BOOK_TAG_BASE + tagName);
-            Document doc = Jsoup.parse(webContent);
-    		Integer maxPage = 1;
-    		try {
-    			Element paginatorElement = doc.select(".paginator").get(0);
-        		Elements pageElements = paginatorElement.select("a");
-        		for (Element page : pageElements) {
-        			String text = page.text();
-        			if (StringUtils.isNumber(text)) {
-        				Integer thisPage = Integer.parseInt(text);
-            			if (thisPage > maxPage) {
-            				maxPage = thisPage;
-            			}
-        			}
-        			
-        		}
-    		} catch (Exception e) {
-    			log.info("页面无分页");
-    		}
-    		
-    		BookTag bookTag = new BookTag();
-    		bookTag.setTagName(tagName);
-    		bookTag.setPageNum(maxPage);
-    		bookTagService.insert(bookTag);
-        }
 	}
 
 }

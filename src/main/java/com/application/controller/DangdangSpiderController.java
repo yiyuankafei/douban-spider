@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.application.common.SpiderPattern;
 import com.application.common.SpirderUrl;
+import com.application.config.ProxyPool;
 import com.application.entity.Book;
 import com.application.entity.DangdangBookTag;
 import com.application.entity.DangdangBookTagExample;
@@ -26,6 +27,10 @@ import com.application.service.BookService;
 import com.application.service.DangdangBookTagService;
 import com.application.util.HttpClientUtil;
 
+/**
+ * 
+ * 根据标签爬取当当网书籍信息
+ */
 @RestController
 @Slf4j
 public class DangdangSpiderController {
@@ -36,25 +41,56 @@ public class DangdangSpiderController {
 	@Autowired
 	DangdangBookTagService dangdangTagService;
 	
-	private static  ExecutorService threadPool = Executors.newFixedThreadPool(10);
+	private static ExecutorService threadPool = Executors.newFixedThreadPool(10);
 	
+	/**
+	 * 
+	 * 获取所有标签，需要手动清洗
+	 */
 	@RequestMapping("/dangdang/book/tag")
 	public void createTag() throws Exception {
-		generateTags();
+		//获取所有标签
+		String webContent = HttpClientUtil.doGet(SpirderUrl.DANGDANG_BOOK_TAG_BASE);
+		
+		Document doc = Jsoup.parse(webContent);
+		Elements elements = doc.select("a[ddt-src]");
+		elements.forEach(element -> {
+			DangdangBookTag tag = new DangdangBookTag();
+			tag.setTagName(element.attr("title"));
+			tag.setTagUrl(element.attr("ddt-src"));
+			dangdangTagService.insert(tag);
+		});
 	}
 	
+	/**
+	 * 
+	 * 获取每个标签页数
+	 */
 	@RequestMapping("/dangdang/book/tag/pageNumber")
 	public void createTagPageNumber() throws Exception {
-		generateTagsPageNumber();
+		Pattern pattern = Pattern.compile(SpiderPattern.DANGDANG_BOOK_TAG_PAGENUMBER);
+		DangdangBookTagExample example = new DangdangBookTagExample();
+		example.createCriteria().andTagUrlLike("%cp%");
+		List<DangdangBookTag> list = dangdangTagService.selectByExample(example);
+		list.forEach(tag -> {
+			Integer pageNumber = 1;
+			String webContent = HttpClientUtil.doGet(tag.getTagUrl());
+			Matcher matcher = pattern.matcher(webContent);
+			while (matcher.find()) {
+				pageNumber = Integer.parseInt(matcher.group(1));
+			}
+			tag.setPageNum(pageNumber);
+			dangdangTagService.updateByPrimaryKey(tag);
+		});
 	}
 	
 	@RequestMapping("/dangdang/book")
 	public void generat() throws Exception {
 		
 		//爬虫并发数限制10
-		Semaphore semaphore = new Semaphore(10,true);
+		Semaphore semaphore = new Semaphore(10, true);
 		//初始化代理池
-		//ProxyPool.fillProxyPool();
+		ProxyPool.fillProxyPool();
 		
 		DangdangBookTagExample example = new DangdangBookTagExample();
 		example.createCriteria().andTagUrlLike("%cp%");
@@ -94,7 +130,7 @@ public class DangdangSpiderController {
 				String content = HttpClientUtil.doGet(url);
 				Document doc = Jsoup.parse(content);
 				Elements elements = doc.select(".bigimg li");
-				System.out.println("====开始抓取书籍完毕：" + url);
+				log.info("====开始抓取书籍完毕：{}", url);
 				List<Book> bookList = new ArrayList<Book>();
 				elements.forEach(element -> {
 					
@@ -126,72 +162,19 @@ public class DangdangSpiderController {
 					bookList.add(book);
 				});
 				bookService.insertBatch(bookList);
-				System.out.println("====抓取书籍完毕：" + url);
+				log.info("====抓取书籍完毕：", url);
 			} catch (Exception e) {
 				e.printStackTrace();
 				//TODO 抓取失败URL入库
-				System.out.println("******************");
-				System.out.println("====抓取书籍发生异常：" + url);
-				System.out.println("******************");
+				log.info("******************");
+				log.info("====抓取书籍发生异常：", url);
+				log.info("******************");
 			} finally {
 				semaphore.release();
 			}
 			
 		}
 		
-	}
-	
-	private void generateTags() throws Exception {
-		//获取所有标签
-		String webContent = HttpClientUtil.doGet(SpirderUrl.DANGDANG_BOOK_TAG_BASE);
-		
-		Document doc = Jsoup.parse(webContent);
-		Elements elements = doc.select("a[ddt-src]");
-		elements.forEach(element -> {
-			String tagName = element.attr("title");
-			String url = element.attr("ddt-src");
-			DangdangBookTag tag = new DangdangBookTag();
-			tag.setTagName(tagName);
-			tag.setTagUrl(url);
-			dangdangTagService.insert(tag);
-		});
-	}
-	
-	private void generateTagsPageNumber() throws Exception {
-		
-		Pattern pattern = Pattern.compile(SpiderPattern.DANGDANG_BOOK_TAG_PAGENUMBER);
-		
-		DangdangBookTagExample example = new DangdangBookTagExample();
-		example.createCriteria().andTagUrlLike("%cp%");
-		List<DangdangBookTag> list = dangdangTagService.selectByExample(example);
-		list.forEach(tag -> {
-			Integer pageNumber = 1;
-			String webContent = HttpClientUtil.doGet(tag.getTagUrl());
-			Matcher matcher = pattern.matcher(webContent);
-			while (matcher.find()) {
-				pageNumber = Integer.parseInt(matcher.group(1));
-			}
-			tag.setPageNum(pageNumber);
-			dangdangTagService.updateByPrimaryKey(tag);
-		});
-	}
-	
-	public static void main(String[] args) throws Exception {
-		/*//获取所有标签
-				String webContent = HttpClientUtil.doGet(SpirderUrl.DANGDANG_BOOK_TAG_BASE);
-				
-				Document doc = Jsoup.parse(webContent);
-				Elements elements = doc.select("a[ddt-src]");
-				elements.forEach(element -> {
-					String tagName = element.attr("title");
-					String url = element.attr("ddt-src");
-					System.out.println(tagName);
-					System.out.println(url);
-				});*/
-		System.out.println(1);
-		String s = "http://category.dangdang.com/cp51.12.00.00.00.00.html";
-		String x = "http://category.dangdang.com/";
-		System.out.println(s.replace(x, ""));
 	}
 
 }

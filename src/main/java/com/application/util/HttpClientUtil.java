@@ -20,16 +20,15 @@ import com.application.entity.IpProxy;
 
 public class HttpClientUtil {
 	
-	public static String doGet(String url)  {
+	public static String doGet(String url) {
 		
 		while(true) {
 			HttpGet httpGet = new HttpGet(url);
 			
-			/*IpProxy ipProxy = ProxyPool.getInstance();
+			IpProxy ipProxy = ProxyPool.getInstance();
 			HttpHost proxy = new HttpHost(ipProxy.getIp(), ipProxy.getPort());
 			RequestConfig config = RequestConfig.custom().setProxy(proxy).build();  
-	        httpGet.setConfig(config);*/
-			
+	        httpGet.setConfig(config);
 			
 	        String webContent = "";
 	        try (CloseableHttpClient getClient = HttpClients.createDefault()) {
@@ -37,25 +36,28 @@ public class HttpClientUtil {
 		        CloseableHttpResponse getResponse = getClient.execute(httpGet);
 	        	HttpEntity entity = getResponse.getEntity();
 		        webContent = EntityUtils.toString(entity, "UTF-8");
-		        /*if (getResponse.getStatusLine().getStatusCode() != 200) {
+		        if (getResponse.getStatusLine().getStatusCode() != 200) {
 		        	ProxyPool.changeProxy(ipProxy.getIp());
+		        	System.out.println("URL========:" + url);
+		        	if (webContent.indexOf("<title>页面不存在</title>") > 0) {
+		        		return "页面不存在";
+		        	}
 		        	System.out.println("webContent================" + webContent);
 		        	continue;
-		        }*/
+		        }
+		        
+		        if (webContent.length() < 5000) {
+		        	System.out.println("#################################");
+		        	System.out.println(webContent);
+		        	System.out.println("#################################");
+		        	ProxyPool.changeProxy(ipProxy.getIp());
+		        	continue;
+		        }
 	        } catch (Exception  e) {
 	        	e.printStackTrace();
 	        	//丢包重试
 	        	continue;
 	        }
-	        
-	        /*if (webContent.length() < 5000) {
-	        	System.out.println("#################################");
-	        	System.out.println(webContent);
-	        	System.out.println("#################################");
-	        	ProxyPool.changeProxy(ipProxy.getIp());
-	        	continue;
-	        }*/
-	        
 	        
 	        return webContent;
 		}

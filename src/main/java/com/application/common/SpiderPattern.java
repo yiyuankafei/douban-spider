@@ -16,17 +16,17 @@ public class SpiderPattern {
 	public static String DOUBAN_BOOK_AUTHOR = "\"@type\": \"Person\",\\s*\"name\": \"(.+)\"";
 	
 	/**
-	 * 豆瓣书籍标签
+	 * 豆瓣书籍-标签
 	 */
 	public static String DOUBAN_BOOK_TAG =  "<a href=\"/tag/(.+)\">";
 	
 	/**
-	 * 当当书籍标签
+	 * 当当书籍-标签
 	 */
 	public static String DANGDANG_BOOK_TAG =  "<a href=\"/tag/(.+)\">";
 	
 	/**
-	 * 当当分页标签
+	 * 当当书籍-分页标签
 	 */
 	public static String DANGDANG_BOOK_TAG_PAGENUMBER =  "bottom-page-turn\">(\\w+)</a>";
 

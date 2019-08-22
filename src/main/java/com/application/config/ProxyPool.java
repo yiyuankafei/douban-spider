@@ -50,6 +50,7 @@ public class ProxyPool {
 	}
 	
 	public synchronized static void fillProxyPool() throws Exception {
+		
 		String license = "LA96B92B5557687P";
 		String time = String.valueOf(System.currentTimeMillis() / 1000);
 		String secret = "3004471B31E11014";
@@ -59,6 +60,8 @@ public class ProxyPool {
         String sign = new BigInteger(1, md5.digest()).toString(16);
 		
 		String url = "http://api-ip.abuyun.com/obtain?license=" + license + "&time=" + time + "&sign=" + sign + "&cnt=1";
+		
+		
 		HttpGet httpGet = new HttpGet(url);
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
