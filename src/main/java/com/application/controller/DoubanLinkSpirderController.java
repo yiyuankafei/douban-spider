@@ -74,7 +74,7 @@ public class DoubanLinkSpirderController {
 			log.info("***********************");
 			queue.addAll(linkList);
 			dojob(semaphore, latch);
-			//刚开始数据量少，会爬取重复数据
+			//刚开始数据量少，会爬取重复数据, 用书名作为唯一索引防止重复数据入库
 			latch.await();
 		}
 	}
@@ -175,13 +175,19 @@ public class DoubanLinkSpirderController {
         	book.setPubDate(m.group(1).trim());
         }
         
-        //作者
+        //作者(取第一列)
         pattern = Pattern.compile(SpiderPattern.DOUBAN_BOOK_AUTHOR);
         m = pattern.matcher(webContent);
-        while (m.find()) {
+        if (m.find()) {
         	book.setAuthor(m.group(1).trim());
         }
         
-        bookService.insert(book);
+        try {
+        	bookService.insert(book);
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	log.info("数据已存在");
+        }
+        
 	}
 }

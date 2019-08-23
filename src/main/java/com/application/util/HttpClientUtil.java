@@ -37,11 +37,11 @@ public class HttpClientUtil {
 	        	HttpEntity entity = getResponse.getEntity();
 		        webContent = EntityUtils.toString(entity, "UTF-8");
 		        if (getResponse.getStatusLine().getStatusCode() != 200) {
-		        	ProxyPool.changeProxy(ipProxy.getIp());
-		        	System.out.println("URL========:" + url);
 		        	if (webContent.indexOf("<title>页面不存在</title>") > 0) {
 		        		return "页面不存在";
 		        	}
+		        	ProxyPool.changeProxy(ipProxy.getIp());
+		        	System.out.println("URL========:" + url);
 		        	System.out.println("webContent================" + webContent);
 		        	continue;
 		        }
