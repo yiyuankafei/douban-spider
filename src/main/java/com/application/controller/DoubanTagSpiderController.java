@@ -23,10 +23,10 @@ import com.application.common.SpiderPattern;
 import com.application.common.SpirderUrl;
 import com.application.config.HttpClientPool;
 import com.application.config.ProxyPool;
-import com.application.entity.Book;
+import com.application.entity.BookFromTag;
 import com.application.entity.BookTag;
 import com.application.entity.BookTagExample;
-import com.application.service.BookService;
+import com.application.service.BookFromTagService;
 import com.application.service.BookTagService;
 import com.application.util.HttpClientUtil;
 
@@ -36,10 +36,10 @@ import com.application.util.HttpClientUtil;
  */
 @RestController
 @Slf4j
-public class DoubanSpiderController {
+public class DoubanTagSpiderController {
 	
 	@Autowired
-	BookService bookService;
+	BookFromTagService bookFromTagService;
 	
 	@Autowired
 	BookTagService bookTagService;
@@ -47,7 +47,7 @@ public class DoubanSpiderController {
 	@Autowired
     HttpClientPool httpClientPool;
 	
-	private static  ExecutorService threadPool = Executors.newFixedThreadPool(10);
+	private static  ExecutorService threadPool = Executors.newFixedThreadPool(20);
 	
 	/**
 	 * 
@@ -91,11 +91,11 @@ public class DoubanSpiderController {
 	 * 
 	 * 获取书籍信息
 	 */
-	@RequestMapping("/douban/book")
+	@RequestMapping("/douban/tag/book")
 	public void generat() throws Exception {
 		
 		//爬虫并发数限制10
-		Semaphore semaphore = new Semaphore(10,true);
+		Semaphore semaphore = new Semaphore(20,true);
 		//初始化代理池
 		ProxyPool.fillProxyPool();
 		
@@ -139,8 +139,8 @@ public class DoubanSpiderController {
 				String content = HttpClientUtil.doGet(url);
 				Document doc = Jsoup.parse(content);
 				Elements elements = doc.select(".subject-item");
-				log.info("====开始抓取书籍完毕：", url);
-				List<Book> bookList = new ArrayList<Book>();
+				log.info("====开始抓取书籍完毕：{}", url);
+				List<BookFromTag> bookList = new ArrayList<>();
 				elements.forEach(element -> {
 					Element img = element.select(".pic img").get(0);
 					Element info = element.select(".info").get(0);
@@ -148,11 +148,14 @@ public class DoubanSpiderController {
 					String pubString = pub.text();
 					String[] pubInfo = pubString.split("/");
 					
-					Book book = new Book();
+					BookFromTag book = new BookFromTag();
 					book.setTitle(info.select("h2 a").get(0).attr("title"));
 					book.setCoverUrl(img.attr("src"));
+					int length = pubInfo.length;
 					book.setAuthor(pubInfo[0].trim());
-					if (pubInfo.length > 1) {
+					book.setPubDate(pubInfo[length-2].trim());
+					book.setPubOrg(pubInfo[length-3].trim());
+					/*if (pubInfo.length > 1) {
 						try {
 							if (book.getAuthor().indexOf("[") > 0) {
 								book.setPubOrg(pubInfo[2].trim());
@@ -165,16 +168,18 @@ public class DoubanSpiderController {
 							log.error("抓取出本信息异常，图书名：{},链接地址：{}", book.getTitle(), url);
 						}
 						
-					}
+					}*/
+					//用作爬取方式的标记
+					book.setDoubanIndex(1l);
 					bookList.add(book);
 				});
-				bookService.insertBatch(bookList);
-				log.info("====抓取书籍完毕：", url);
+				bookFromTagService.insertBatch(bookList);
+				log.info("====抓取书籍完毕：{}", url);
 			} catch (Exception e) {
 				e.printStackTrace();
 				//TODO 抓取失败URL入库
 				log.info("******************");
-				log.info("====抓取书籍发生异常：", url);
+				log.info("====抓取书籍发生异常：{}", url);
 				log.info("******************");
 			} finally {
 				semaphore.release();

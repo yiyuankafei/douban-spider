@@ -29,5 +29,10 @@ public class SpiderPattern {
 	 * 当当书籍-分页标签
 	 */
 	public static String DANGDANG_BOOK_TAG_PAGENUMBER =  "bottom-page-turn\">(\\w+)</a>";
+	
+	/**
+	 * 书名过滤(中文、字母、数字、个别符号)
+	 */
 
+	public static String BOOK_NAME_FILTER_PATTERN = "[\\u4e00-\\u9fa5|\\w|[-:：，,\"]]*";
 }

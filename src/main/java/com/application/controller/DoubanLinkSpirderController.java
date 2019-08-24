@@ -106,6 +106,7 @@ public class DoubanLinkSpirderController {
 				String webContent = HttpClientUtil.doGet(link.getLink());
 				if (webContent.equals("页面不存在")) {
 					log.info("页面不存在：{},{}", link.getTitle(), link.getLink());
+					return;
 				}
 				Document doc = Jsoup.parse(webContent);
 				

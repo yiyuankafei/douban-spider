@@ -32,12 +32,11 @@ public class HttpClientUtil {
 			
 	        String webContent = "";
 	        try (CloseableHttpClient getClient = HttpClients.createDefault()) {
-	        	;
 		        CloseableHttpResponse getResponse = getClient.execute(httpGet);
 	        	HttpEntity entity = getResponse.getEntity();
 		        webContent = EntityUtils.toString(entity, "UTF-8");
 		        if (getResponse.getStatusLine().getStatusCode() != 200) {
-		        	if (webContent.indexOf("<title>页面不存在</title>") > 0) {
+		        	if (webContent.indexOf("页面不存在") > 0 || webContent.indexOf("条目不存在") > 0) {
 		        		return "页面不存在";
 		        	}
 		        	ProxyPool.changeProxy(ipProxy.getIp());
