@@ -76,13 +76,11 @@ public class ProxyPool {
 		
 		String url = "http://api-ip.abuyun.com/obtain?license=" + license + "&time=" + time + "&sign=" + sign + "&cnt=1";
 		
-		
 		HttpGet httpGet = new HttpGet(url);
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
 		HttpEntity entity = httpResponse.getEntity();
         String webContent = EntityUtils.toString(entity, "UTF-8");
-        
         log.info("获取IP：" + webContent);
         
         GetIpResponse response = JSONObject.parseObject(webContent, GetIpResponse.class);

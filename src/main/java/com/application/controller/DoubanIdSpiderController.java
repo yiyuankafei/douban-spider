@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,10 +45,9 @@ public class DoubanIdSpiderController {
 		Semaphore semaphore = new Semaphore(50,true);
 		//初始化代理池
 		ProxyPool.fillProxyPool();
-		//26779591
 		try {
 			//for (long i = 26842807l; i < 99999999; i++) {
-			for (long i = 26300585l; i > 0; i--) {
+			for (long i = 26154454l; i > 0; i--) {
 				semaphore.acquire();
 				threadPool.execute(new bookSpider(i, semaphore));
 			}
@@ -69,9 +69,7 @@ public class DoubanIdSpiderController {
 
 		@Override
 		public void run() {
-			
 			try {
-			
 				Book book = new Book();
 				book.setDoubanIndex(index);
 				String getUrl = "https://book.douban.com/subject/" + index;
@@ -105,8 +103,14 @@ public class DoubanIdSpiderController {
 		        	try {
 		        		book.setCoverUrl(doc.select("img[title=点击看大图]").get(0).attr("src"));
 		        	} catch (Exception e) {
-		        		log.info("{}封面不存在", index);
-		        		return;
+		        		log.info("{}封面大图不存在", index);
+		        		try {
+		        			Element element = doc.select(".nbg").get(0);
+		        			book.setCoverUrl(element.attr("href"));
+		        		} catch (Exception ex) {
+		        			log.info("{}没有封面图", index);
+		        			return;
+		        		}
 		        	}
 		        }
 			        

@@ -160,6 +160,12 @@ public class DoubanLinkSpirderController {
 			book.setCoverUrl(doc.select("img[title=点击看大图]").get(0).attr("src"));
 		} catch (Exception e) {
 			log.info("解析异常，没有点击看大图");
+			try {
+    			Element element = doc.select(".nbg").get(0);
+    			book.setCoverUrl(element.attr("href"));
+    		} catch (Exception ex) {
+    			log.info("没有封面图");
+    		}
 		}
 		
 		//出版机构
