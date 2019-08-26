@@ -1,13 +1,11 @@
 package com.application.util;
 
-import java.io.IOException;
 
-import javax.net.ssl.SSLException;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.TruncatedChunkException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -18,6 +16,7 @@ import org.apache.http.util.EntityUtils;
 import com.application.config.ProxyPool;
 import com.application.entity.IpProxy;
 
+@Slf4j
 public class HttpClientUtil {
 	
 	public static String doGet(String url) {
@@ -39,16 +38,19 @@ public class HttpClientUtil {
 		        	if (webContent.indexOf("页面不存在") > 0 || webContent.indexOf("条目不存在") > 0) {
 		        		return "页面不存在";
 		        	}
+		        	if (webContent.indexOf("开小差") > 0) {
+		        		return "开小差";
+		        	}
 		        	ProxyPool.changeProxy(ipProxy.getIp());
-		        	System.out.println("URL========:" + url);
-		        	System.out.println("webContent================" + webContent);
+		        	log.info("URL========:{}", url);
+		        	log.info("webContent================:{}", webContent);
 		        	continue;
 		        }
 		        
 		        if (webContent.length() < 5000) {
-		        	System.out.println("#################################");
-		        	System.out.println(webContent);
-		        	System.out.println("#################################");
+		        	log.info("#################################");
+		        	log.info(webContent);
+		        	log.info("#################################");
 		        	ProxyPool.changeProxy(ipProxy.getIp());
 		        	continue;
 		        }

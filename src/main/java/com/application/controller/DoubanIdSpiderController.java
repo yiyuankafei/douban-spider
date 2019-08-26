@@ -21,6 +21,10 @@ import com.application.entity.Book;
 import com.application.service.BookService;
 import com.application.util.HttpClientUtil;
 
+/**
+ * 
+ * 根据豆瓣ID爬取书籍信息（book.douban.com/subject/{书籍ID}）
+ */
 @RestController
 @Slf4j
 public class DoubanIdSpiderController {
@@ -31,18 +35,19 @@ public class DoubanIdSpiderController {
 	@Autowired
     HttpClientPool httpClientPool;
 	
-	private static  ExecutorService threadPool = Executors.newFixedThreadPool(20);
+	private static  ExecutorService threadPool = Executors.newFixedThreadPool(50);
 	
 	@RequestMapping("/douban/id/book")
 	public void generat() throws Exception {
 		
 		//爬虫并发数限制10
-		Semaphore semaphore = new Semaphore(20,true);
+		Semaphore semaphore = new Semaphore(50,true);
 		//初始化代理池
 		ProxyPool.fillProxyPool();
-		
+		//26779591
 		try {
-			for (long i = 26779591l; i < 99999999; i++) {
+			//for (long i = 26842807l; i < 99999999; i++) {
+			for (long i = 26300585l; i > 0; i--) {
 				semaphore.acquire();
 				threadPool.execute(new bookSpider(i, semaphore));
 			}
@@ -75,6 +80,12 @@ public class DoubanIdSpiderController {
 				if (webContent.equals("页面不存在")) {
 					log.info("URL页面不存在：{}", getUrl);
 					return;
+				}
+				
+				//豆瓣网络服务故障
+				while (webContent.equals("开小差")) {
+					Thread.sleep(1000);
+					webContent = HttpClientUtil.doGet(getUrl);
 				}
 				
 				if (webContent.contains("豆瓣电影") || webContent.contains("豆瓣音乐")) {

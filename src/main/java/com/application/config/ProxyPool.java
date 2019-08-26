@@ -13,6 +13,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import redis.clients.jedis.Jedis;
+
+import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.application.entity.GetIpResponse;
 import com.application.entity.IpProxy;
@@ -28,12 +31,22 @@ public class ProxyPool {
 		return currentProxy;
 	}
 	
+	@SuppressWarnings("resource")
 	public static IpProxy changeProxy(String ip) throws Exception {
 		log.info("更换IP，过期IP:{},当前IP:{}", ip, currentProxy.getIp());
 		
 		if (ip.equals(currentProxy.getIp())) {
 			synchronized (ProxyPool.class) {
 				if (ip.equals(currentProxy.getIp())) {
+					//防止豆瓣服务器崩溃导致IP疯狂刷新，redis限制更换频率
+					Jedis jedis = new Jedis("47.99.65.176", 6388, 10000);
+					if (!StringUtils.isEmpty(jedis.get("changeIp"))) {
+						log.info("IP更换冻结:{}", ip);
+						Thread.sleep(1000);
+						return currentProxy;
+					}
+					jedis.set("changeIp", "1");
+					jedis.expire("changeIp", 30);
 					map.remove(ip);
 					if (map.size() == 0) {
 						fillProxyPool();
@@ -51,8 +64,10 @@ public class ProxyPool {
 	
 	public synchronized static void fillProxyPool() throws Exception {
 		
+		//String license = "L958CC6EE4FADC0P";
 		String license = "LA96B92B5557687P";
 		String time = String.valueOf(System.currentTimeMillis() / 1000);
+		//String secret = "81375CD00B945D2A";
 		String secret = "3004471B31E11014";
 		
 		MessageDigest md5 = MessageDigest.getInstance("MD5");

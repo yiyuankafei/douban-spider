@@ -6,13 +6,12 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.application.service.BaseService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Preconditions;
-import com.application.service.BaseService;
 
 @Slf4j
 public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseService<Record, Example> {
@@ -28,7 +27,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = countByExample.invoke(mapper, example);
             return Integer.parseInt(String.valueOf(result));
         } catch (ReflectiveOperationException e) {
-            log.error("countByExample error,{}", ExceptionUtils.getFullStackTrace(e));
+            log.error("countByExample error,{}", e);
         }
         return null;
     }
@@ -40,7 +39,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = deleteByExample.invoke(mapper, example);
             return Integer.parseInt(String.valueOf(result));
         } catch (ReflectiveOperationException e) {
-        	log.error("deleteByExample error,{}", ExceptionUtils.getFullStackTrace(e));
+        	log.error("deleteByExample error,{}", e);
         }
         return null;
     }
@@ -52,7 +51,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = deleteByPrimaryKey.invoke(mapper, id);
             return Integer.parseInt(String.valueOf(result));
         } catch (ReflectiveOperationException e) {
-        	log.error("deleteByPrimaryKey error,{}", ExceptionUtils.getFullStackTrace(e));
+        	log.error("deleteByPrimaryKey error,{}", e);
         }
         return null;
     }
@@ -64,7 +63,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = insert.invoke(mapper, record);
             return Integer.parseInt(String.valueOf(result));
         } catch (ReflectiveOperationException e) {
-            log.error("insert error,{}", ExceptionUtils.getFullStackTrace(e));
+            log.error("insert error,{}", e);
         }
         return null;
     }
@@ -76,7 +75,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = insertSelective.invoke(mapper, record);
             return Integer.parseInt(String.valueOf(result));
         } catch (ReflectiveOperationException e) {
-            log.error("insertSelective error,{}", ExceptionUtils.getFullStackTrace(e));
+            log.error("insertSelective error,{}", e);
         }
         return null;
     }
@@ -90,7 +89,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = selectByExample.invoke(mapper, example);
             return (List<Record>) result;
         } catch (ReflectiveOperationException e) {
-            log.error("selectByExample error,{}", ExceptionUtils.getFullStackTrace(e));
+            log.error("selectByExample error,{}", e);
         }
         return null;
     }
@@ -104,7 +103,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = selectByPrimaryKey.invoke(mapper, id);
             return (Record) result;
         } catch (ReflectiveOperationException e) {
-            log.error("selectByPrimaryKey error,{}", ExceptionUtils.getFullStackTrace(e));
+            log.error("selectByPrimaryKey error,{}", e);
         }
         return null;
     }
@@ -116,7 +115,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = updateByExampleSelective.invoke(mapper, record, example);
             return Integer.parseInt(String.valueOf(result));
         } catch (ReflectiveOperationException e) {
-            log.error("updateByExampleSelective error,{}", ExceptionUtils.getFullStackTrace(e));
+            log.error("updateByExampleSelective error,{}", e);
         }
         return null;
     }
@@ -128,7 +127,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = updateByExample.invoke(mapper, record, example);
             return Integer.parseInt(String.valueOf(result));
         } catch (ReflectiveOperationException e) {
-            log.error("updateByExample error,{}", ExceptionUtils.getFullStackTrace(e));
+            log.error("updateByExample error,{}", e);
         }
         return null;
     }
@@ -141,7 +140,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = updateByPrimaryKeySelective.invoke(mapper, record);
             return Integer.parseInt(String.valueOf(result));
         } catch (ReflectiveOperationException e) {
-            log.error("updateByPrimaryKeySelective error,{}", ExceptionUtils.getFullStackTrace(e));
+            log.error("updateByPrimaryKeySelective error,{}", e);
         }
         return null;
     }
@@ -154,7 +153,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
             Object result = updateByPrimaryKey.invoke(mapper, record);
             return Integer.parseInt(String.valueOf(result));
         } catch (ReflectiveOperationException e) {
-            log.error("updateByPrimaryKey error,{}", ExceptionUtils.getFullStackTrace(e));
+            log.error("updateByPrimaryKey error,{}", e);
         }
         return null;
     }
@@ -189,7 +188,7 @@ public abstract class BaseServiceImpl<Mapper, Record, Example> implements BaseSe
                 }
                 return Integer.parseInt(String.valueOf(id));
             } catch (ReflectiveOperationException e) {
-                log.error("save error,{}", ExceptionUtils.getFullStackTrace(e));
+                log.error("save error,{}", e);
             }
 
         }

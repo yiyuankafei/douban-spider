@@ -15,16 +15,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     test-on-return: false
     username: root
-redis:
-  hostName: 127.0.0.1
-  port: 16378
-  overdueTime: 259200
-  timeout: 10000
-oss:
-  accessKeyId: LTAIXVFZBZEYUAz4
-  endPoint: http://oss-cn-hangzhou.aliyuncs.com
-  bucketName: byf-bucket
-  accessKeySecret: xdFQfRMpcnkN2A0DZ8IM41AAyjdpQC
 
 mybatis:
   mapper-locations: classpath:com/application/mapper/*.xml,classpath:com/application/mapper/custom/*.xml
+
