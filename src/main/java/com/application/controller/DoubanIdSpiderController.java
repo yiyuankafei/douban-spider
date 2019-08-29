@@ -36,25 +36,23 @@ public class DoubanIdSpiderController {
 	@Autowired
     HttpClientPool httpClientPool;
 	
-	private static  ExecutorService threadPool = Executors.newFixedThreadPool(50);
+	private static  ExecutorService threadPool = Executors.newFixedThreadPool(100);
 	
 	@RequestMapping("/douban/id/book")
-	public void generat() throws Exception {
+	public void generat(Long index) throws Exception {
 		
 		//爬虫并发数限制10
-		Semaphore semaphore = new Semaphore(50,true);
+		Semaphore semaphore = new Semaphore(100,true);
 		//初始化代理池
 		ProxyPool.fillProxyPool();
 		try {
-			//for (long i = 26842807l; i < 99999999; i++) {
-			for (long i = 26154454l; i > 0; i--) {
+			for (long i = index; i < 99999999; i++) {
 				semaphore.acquire();
 				threadPool.execute(new bookSpider(i, semaphore));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	class bookSpider implements Runnable {
@@ -94,10 +92,10 @@ public class DoubanIdSpiderController {
 		        Document doc = Jsoup.parse(webContent);
 		        //书名
 		        book.setTitle(doc.select("h1 span").get(0).text());
-		        if (!book.getTitle().matches(SpiderPattern.BOOK_NAME_FILTER_PATTERN)) {
+		        /*if (!book.getTitle().matches(SpiderPattern.BOOK_NAME_FILTER_PATTERN)) {
 		        	log.info("书名不符合规范：{}", book.getTitle());
 		        	return;
-		        }
+		        }*/
 		        if (!webContent.contains("点击上传封面图片")) {
 		        	//封面URL
 		        	try {
@@ -114,6 +112,7 @@ public class DoubanIdSpiderController {
 		        	}
 		        }
 			        
+		        
 				//出版机构
 		        Pattern pattern = Pattern.compile(SpiderPattern.DOUBAN_BOOK_PUB_ORG);
 		        Matcher m = pattern.matcher(webContent);
@@ -126,6 +125,13 @@ public class DoubanIdSpiderController {
 		        m = pattern.matcher(webContent);
 		        while (m.find()) {
 		        	book.setPubDate(m.group(1).trim());
+		        }
+		        
+		        //ISBN
+		        pattern = Pattern.compile(SpiderPattern.DOUBAN_BOOK_ISBN);
+		        m = pattern.matcher(webContent);
+		        while (m.find()) {
+		        	book.setIsbn(m.group(1).trim());
 		        }
 		        
 		        //作者(取第一列)
@@ -146,6 +152,11 @@ public class DoubanIdSpiderController {
 			}
 		}
 		
+	}
+	
+	public static void main(String[] args) {
+		String s = "作者: Perry Anderson 出版社: 久大文化股份有限公司/桂冠图书股份有限公司 译者: 高銛 / 文貫中 / 魏章鈴 出版年: 1989 页数: 159 定价: 新台币 125.00元 装帧: 平装 ISBN: 9789575510015";
+		System.out.println(s.split("作者:")[1]);
 	}
 }
 

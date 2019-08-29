@@ -38,7 +38,7 @@
         </javaClientGenerator>
 
         
-        <table schema="spider" tableName="book_from_tag" domainObjectName="BookFromTag">
+        <table schema="spider" tableName="tbl_book" domainObjectName="Book">
             <generatedKey column="id" sqlStatement="MySql" identity="true" />
         </table>
         

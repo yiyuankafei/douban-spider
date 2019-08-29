@@ -46,7 +46,7 @@ public class ProxyPool {
 						return currentProxy;
 					}
 					jedis.set("changeIp", "1");
-					jedis.expire("changeIp", 30);
+					jedis.expire("changeIp", 10);
 					map.remove(ip);
 					if (map.size() == 0) {
 						fillProxyPool();
@@ -64,11 +64,11 @@ public class ProxyPool {
 	
 	public synchronized static void fillProxyPool() throws Exception {
 		
-		//String license = "L958CC6EE4FADC0P";
-		String license = "LA96B92B5557687P";
+		String license = "L2DF913DED69C49P";
+		//String license = "LA96B92B5557687P";
 		String time = String.valueOf(System.currentTimeMillis() / 1000);
-		//String secret = "81375CD00B945D2A";
-		String secret = "3004471B31E11014";
+		String secret = "755F92909D3482ED";
+		//String secret = "3004471B31E11014";
 		
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
         md5.update((license + time + secret).getBytes());

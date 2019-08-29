@@ -5,11 +5,16 @@ public class SpiderPattern {
 	/**
 	 * 豆瓣书籍-出版机构
 	 */
-	public static String DOUBAN_BOOK_PUB_ORG = "<span class=\"pl\">出版社:</span>(.+)<br/>";
+	public static String DOUBAN_BOOK_PUB_ORG = "<span class=\"pl\">出版社:</span>(.+)<br";
 	/**
 	 * 豆瓣书籍-出版日期
 	 */
-	public static String DOUBAN_BOOK_PUB_DATE = "<span class=\"pl\">出版年:</span>(.+)<br/>";
+	public static String DOUBAN_BOOK_PUB_DATE = "<span class=\"pl\">出版年:</span>(.+)<br";
+	
+	/**
+	 * 豆瓣书籍-ISBN
+	 */
+	public static String DOUBAN_BOOK_ISBN = "<span class=\"pl\">ISBN:</span>(.+)<br";
 	/**
 	 * 豆瓣书籍-作者名
 	 */

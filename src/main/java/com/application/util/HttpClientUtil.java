@@ -38,7 +38,8 @@ public class HttpClientUtil {
 		        	if (webContent.indexOf("页面不存在") > 0 || webContent.indexOf("条目不存在") > 0) {
 		        		return "页面不存在";
 		        	}
-		        	if (webContent.indexOf("开小差") > 0) {
+		        	if (webContent.indexOf("开小差") > 0 || webContent.indexOf("Connect Host Timeout") > 0) {
+		        		log.info(webContent.indexOf("开小差") > 0 ? "开小差" : "Connect Host Timeout");
 		        		return "开小差";
 		        	}
 		        	ProxyPool.changeProxy(ipProxy.getIp());
