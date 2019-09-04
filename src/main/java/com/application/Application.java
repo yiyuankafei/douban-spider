@@ -48,15 +48,15 @@ public class Application extends SpringBootServletInitializer implements Command
 		log.info("系统启动完成！");
 		
 		//书籍
-		BookExample example = new BookExample();
+		/*BookExample example = new BookExample();
 		example.createCriteria().andIdGreaterThan(3917950);
 		example.setOrderByClause("douban_index limit 1");
 		List<Book> list = bookMapper.selectByExample(example);
 		log.info("===============开始收集数据，起始index:" + list.get(0).getDoubanIndex());
-		bookController.generate(list.get(0).getDoubanIndex() - 1);
+		bookController.generate(list.get(0).getDoubanIndex() - 1);*/
 		
 		//电影
-		//movieController.generate(26743757l);
+		movieController.generate(26743757l);
 	}
 
 }
