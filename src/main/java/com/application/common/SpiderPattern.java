@@ -39,4 +39,10 @@ public class SpiderPattern {
 	 * 书名过滤(中文、字母、数字、个别符号)
 	 */
 	public static String BOOK_NAME_FILTER_PATTERN = "[\\u4e00-\\u9fa5|\\w|[-:：，·,(（)） “”\"]]*";
+	
+	/**
+	 * 豆瓣电影-国家地区
+	 */
+	public static String DOUBAN_MOVIE_COUNTRY = "<span class=\"pl\">制片国家/地区:</span>(.+)<br";
+	
 }

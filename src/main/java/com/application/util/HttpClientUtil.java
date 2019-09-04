@@ -39,8 +39,11 @@ public class HttpClientUtil {
 		        		return "页面不存在";
 		        	}
 		        	if (webContent.indexOf("开小差") > 0 || webContent.indexOf("Connect Host Timeout") > 0) {
-		        		log.info(webContent.indexOf("开小差") > 0 ? "开小差" : "Connect Host Timeout");
+		        		log.info("{}请求重试：{}", url, webContent.indexOf("开小差") > 0 ? "开小差" : "Connect Host Timeout");
 		        		return "开小差";
+		        	}
+		        	if (webContent.indexOf("此应用出错了") > 0) {
+		        		return "应用出错";
 		        	}
 		        	ProxyPool.changeProxy(ipProxy.getIp());
 		        	log.info("URL========:{}", url);

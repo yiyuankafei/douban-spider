@@ -46,7 +46,7 @@ public class DoubanIdSpiderController {
 		//初始化代理池
 		ProxyPool.fillProxyPool();
 		try {
-			for (long i = index; i < 99999999; i++) {
+			for (long i = index; i > 3917950; i--) {
 				semaphore.acquire();
 				threadPool.execute(new bookSpider(i, semaphore));
 			}
@@ -75,6 +75,11 @@ public class DoubanIdSpiderController {
 				
 				if (webContent.equals("页面不存在")) {
 					log.info("URL页面不存在：{}", getUrl);
+					return;
+				}
+				
+				if (webContent.equals("应用出错")) {
+					log.info("应用出错:{}", getUrl);
 					return;
 				}
 				
@@ -152,11 +157,6 @@ public class DoubanIdSpiderController {
 			}
 		}
 		
-	}
-	
-	public static void main(String[] args) {
-		String s = "作者: Perry Anderson 出版社: 久大文化股份有限公司/桂冠图书股份有限公司 译者: 高銛 / 文貫中 / 魏章鈴 出版年: 1989 页数: 159 定价: 新台币 125.00元 装帧: 平装 ISBN: 9789575510015";
-		System.out.println(s.split("作者:")[1]);
 	}
 }
 

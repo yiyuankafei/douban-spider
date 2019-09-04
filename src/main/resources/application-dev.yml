@@ -9,7 +9,7 @@ spring:
     max-wait: 60000
     url: jdbc:mysql://127.0.0.1:3306/db_light?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&tinyInt1isBit=false
     test-on-borrow: false
-    password: root
+    password: kwtaAa6K
     min-evictable-idle-time-millis: 300000
     initial-size: 1
     driver-class-name: com.mysql.jdbc.Driver

@@ -40,7 +40,7 @@ public class ProxyPool {
 				if (ip.equals(currentProxy.getIp())) {
 					//防止豆瓣服务器崩溃导致IP疯狂刷新，redis限制更换频率
 					Jedis jedis = new Jedis("47.99.65.176", 6388, 10000);
-					if (!StringUtils.isEmpty(jedis.get("changeIp"))) {
+					if (!StringUtils.isEmpty(jedis.get("changeIp_movie"))) {
 						log.info("IP更换冻结:{}", ip);
 						Thread.sleep(1000);
 						return currentProxy;
