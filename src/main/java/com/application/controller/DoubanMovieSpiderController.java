@@ -41,7 +41,7 @@ public class DoubanMovieSpiderController {
 	@RequestMapping("/douban/id/movie")
 	public void generate(Long index) throws Exception {
 		
-		//爬虫并发数限制10
+		//爬虫并发数限制100
 		Semaphore semaphore = new Semaphore(100,true);
 		//初始化代理池
 		ProxyPool.fillProxyPool();
@@ -115,14 +115,15 @@ public class DoubanMovieSpiderController {
 		        }
 		        
 		        Elements elements = doc.select("#info .attrs");
-		        if (elements.size() > 0) {
-		        	//导演
-		        	movie.setDirector(elements.get(0).text());
-		        }
 		        
 		        if (elements.size() > 1) {
+		        	//导演
+		        	movie.setDirector(elements.get(0).text());
 		        	//演员
 		        	movie.setActor(elements.get(1).text());
+		        } else if (elements.size() > 0) {
+		        	//导演
+		        	movie.setDirector(elements.get(0).text());
 		        }
 			       
 		        String info = doc.getElementById("info").text();

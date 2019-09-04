@@ -39,14 +39,14 @@ public class DoubanIdSpiderController {
 	private static  ExecutorService threadPool = Executors.newFixedThreadPool(100);
 	
 	@RequestMapping("/douban/id/book")
-	public void generat(Long index) throws Exception {
+	public void generate(Long index) throws Exception {
 		
-		//爬虫并发数限制10
+		//爬虫并发数限制100
 		Semaphore semaphore = new Semaphore(100,true);
 		//初始化代理池
 		ProxyPool.fillProxyPool();
 		try {
-			for (long i = index; i > 3917950; i--) {
+			for (long i = index; i > 8000000; i--) {
 				semaphore.acquire();
 				threadPool.execute(new bookSpider(i, semaphore));
 			}

@@ -74,7 +74,7 @@ public class DoubanLinkSpirderController {
 			log.info("***********************");
 			queue.addAll(linkList);
 			dojob(semaphore, latch);
-			//刚开始数据量少，会爬取重复数据, 用书名作为唯一索引防止重复数据入库
+			//刚开始数据量少，会爬取重复数据
 			latch.await();
 		}
 	}
