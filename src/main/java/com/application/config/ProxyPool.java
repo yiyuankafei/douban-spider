@@ -66,10 +66,10 @@ public class ProxyPool {
 	public synchronized static void fillProxyPool() throws Exception {
 		
 		String license = "L2DF913DED69C49P";
-		//String license = "LA96B92B5557687P";
+		//String license = "L958CC6EE4FADC0P";
 		String time = String.valueOf(System.currentTimeMillis() / 1000);
 		String secret = "755F92909D3482ED";
-		//String secret = "3004471B31E11014";
+		//String secret = "81375CD00B945D2A";
 		
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
         md5.update((license + time + secret).getBytes());

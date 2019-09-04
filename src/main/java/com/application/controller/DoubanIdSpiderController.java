@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +20,9 @@ import com.application.common.SpiderPattern;
 import com.application.config.HttpClientPool;
 import com.application.config.ProxyPool;
 import com.application.entity.Book;
+import com.application.entity.Movie;
 import com.application.service.BookService;
+import com.application.service.MovieService;
 import com.application.util.HttpClientUtil;
 
 /**
@@ -32,6 +35,9 @@ public class DoubanIdSpiderController {
 	
 	@Autowired
 	BookService bookService;
+	
+	@Autowired
+	MovieService movieService;
 	
 	@Autowired
     HttpClientPool httpClientPool;
@@ -90,7 +96,11 @@ public class DoubanIdSpiderController {
 				}
 				
 				if (webContent.contains("豆瓣电影") || webContent.contains("豆瓣音乐")) {
-		        	log.info("{}资源类型为{}", index, webContent.contains("豆瓣电影") ? "电影" : "音乐");
+					if (webContent.contains("豆瓣电影")) {
+						generateMovie(webContent);
+					} else {
+						log.info("{}资源类型为{}", index, "音乐");
+					}
 		        	return;
 		        }
 		        
@@ -156,7 +166,68 @@ public class DoubanIdSpiderController {
 				semaphore.release();
 			}
 		}
+
 		
+		/**
+		 * 
+		 * 电影信息
+		 */
+		private void generateMovie(String webContent) {
+			
+			Movie movie = new Movie();
+			movie.setDoubanIndex(index);
+			Document doc = Jsoup.parse(webContent);
+			//电影名
+			movie.setTitle(doc.select("h1 span").get(0).text());
+	        try {
+	        	 //年份
+	        	 movie.setYear(doc.select("h1 span").get(1).text());
+	         } catch (Exception e) {
+	        	 e.printStackTrace();
+	        	 log.info("{}没有年份", index);
+	         }
+	        
+        	 try {
+        		 movie.setCoverUrl(doc.select("img[title=点击看更多海报]").get(0).attr("src"));
+        	 } catch (Exception e) {
+        		 try {
+        			 movie.setCoverUrl(doc.select("img[title=点击上传封面图片]").get(0).attr("src"));
+        		 } catch (Exception ex) {
+        			 ex.printStackTrace();
+	        		 log.info("{}没有海报", index);
+        		 }
+        	 }
+	        
+	         Elements elements = doc.select("#info .attrs");
+	        
+	         if (elements.size() > 1) {
+	        	 //导演
+	        	 movie.setDirector(elements.get(0).text());
+	        	 //演员
+	        	 movie.setActor(elements.get(1).text());
+	         } else if (elements.size() > 0) {
+	        	 //导演
+	        	 movie.setDirector(elements.get(0).text());
+	         }
+		       
+	         String info = doc.getElementById("info").text();
+	         try {
+	        	 //电影分类
+	        	 movie.setMovieType(info.split("类型:")[1].trim().split(" ")[0]);
+	         } catch (Exception e) {
+	        	 log.info("{}没有分类", index);
+	         }
+	        
+	         //制片国家/地区
+	         Pattern pattern = Pattern.compile(SpiderPattern.DOUBAN_MOVIE_COUNTRY);
+	         Matcher m = pattern.matcher(webContent);
+	         while (m.find()) {
+	        	 movie.setConuntry(m.group(1).trim());
+	         }
+
+	         log.info(movie.toString());
+	         movieService.insert(movie);
+		 }
 	}
 }
 

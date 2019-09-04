@@ -46,7 +46,7 @@ public class DoubanMovieSpiderController {
 		//初始化代理池
 		ProxyPool.fillProxyPool();
 		try {
-			for (long i = index; i > 0; i--) {
+			for (long i = index; i < 99999999; i++) {
 				semaphore.acquire();
 				threadPool.execute(new MovieSpider(i, semaphore));
 			}
@@ -105,14 +105,16 @@ public class DoubanMovieSpiderController {
 		        	log.info("{}没有年份", index);
 		        }
 		        
-		        if (!webContent.contains("点击上传封面图片")) {
-		        	try {
-		        		movie.setCoverUrl(doc.select("img[title=点击看更多海报]").get(0).attr("src"));
-		        	} catch (Exception e) {
-		        		e.printStackTrace();
-		        		log.info("{}没有海报", index);
-		        	}
-		        }
+		        try {
+	        		 movie.setCoverUrl(doc.select("img[title=点击看更多海报]").get(0).attr("src"));
+	        	 } catch (Exception e) {
+	        		 try {
+	        			 movie.setCoverUrl(doc.select("img[title=点击上传封面图片]").get(0).attr("src"));
+	        		 } catch (Exception ex) {
+	        			 ex.printStackTrace();
+		        		 log.info("{}没有海报", index);
+	        		 }
+	        	 }
 		        
 		        Elements elements = doc.select("#info .attrs");
 		        

@@ -365,4 +365,14 @@ public class Movie {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+	@Override
+	public String toString() {
+		return "Movie [id=" + id + ", title=" + title + ", year=" + year
+				+ ", coverUrl=" + coverUrl + ", director=" + director
+				+ ", actor=" + actor + ", movieType=" + movieType
+				+ ", conuntry=" + conuntry + ", doubanIndex=" + doubanIndex
+				+ ", createTime=" + createTime + ", updateTime=" + updateTime
+				+ "]";
+	}
 }

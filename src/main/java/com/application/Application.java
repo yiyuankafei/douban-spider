@@ -56,12 +56,7 @@ public class Application extends SpringBootServletInitializer implements Command
 		bookController.generate(list.get(0).getDoubanIndex() - 1);
 		
 		//电影
-		/*MovieExample example = new MovieExample();
-		example.createCriteria().andIdGreaterThan(0);
-		example.setOrderByClause("douban_index limit 1");
-		List<Movie> list = movieMapper.selectByExample(example);
-		log.info("===============开始收集数据，起始index:" + list.get(0).getDoubanIndex());
-		movieController.generate(list.get(0).getDoubanIndex() - 1);*/
+		//movieController.generate(26743757l);
 	}
 
 }
