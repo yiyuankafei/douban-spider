@@ -45,4 +45,13 @@ public class SpiderPattern {
 	 */
 	public static String DOUBAN_MOVIE_COUNTRY = "<span class=\"pl\">制片国家/地区:</span>(.+)<br";
 	
+	/**
+	 * 电影中文名
+	 */
+	public static String DOUBAN_MOVIE_CHINESE_NAME = ">(.+)的剧情简介";
+	
+	/**
+	 * 电影中文名
+	 */
+	public static String DOUBAN_MOVIE_CHINESE_NAME_2 = ">(.+)的的演职员";
 }
