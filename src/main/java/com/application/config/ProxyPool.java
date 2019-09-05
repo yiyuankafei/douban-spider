@@ -47,7 +47,7 @@ public class ProxyPool {
 						return currentProxy;
 					}
 					jedis.set("changeIp_movie", "1");
-					jedis.expire("changeIp_movie", 10);
+					jedis.expire("changeIp_movie", 15);
 					map.remove(ip);
 					if (map.size() == 0) {
 						fillProxyPool();
