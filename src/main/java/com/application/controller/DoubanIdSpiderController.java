@@ -179,6 +179,17 @@ public class DoubanIdSpiderController {
 			Document doc = Jsoup.parse(webContent);
 			//电影名
 			movie.setTitle(doc.select("h1 span").get(0).text());
+			Pattern pattern = Pattern.compile(SpiderPattern.DOUBAN_MOVIE_CHINESE_NAME);
+			Matcher m = pattern.matcher(webContent);
+			if (m.find()) {
+				movie.setTitle(m.group(1));
+			} else {
+				pattern = Pattern.compile(SpiderPattern.DOUBAN_MOVIE_CHINESE_NAME_2);
+				m = pattern.matcher(webContent);
+				if (m.find()) {
+					movie.setTitle(m.group(1));
+				}
+			}
 	        try {
 	        	 //年份
 	        	 movie.setYear(doc.select("h1 span").get(1).text());
@@ -219,8 +230,8 @@ public class DoubanIdSpiderController {
 	         }
 	        
 	         //制片国家/地区
-	         Pattern pattern = Pattern.compile(SpiderPattern.DOUBAN_MOVIE_COUNTRY);
-	         Matcher m = pattern.matcher(webContent);
+	         pattern = Pattern.compile(SpiderPattern.DOUBAN_MOVIE_COUNTRY);
+	         m = pattern.matcher(webContent);
 	         while (m.find()) {
 	        	 movie.setConuntry(m.group(1).trim());
 	         }
