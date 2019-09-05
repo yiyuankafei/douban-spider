@@ -53,6 +53,6 @@ public class SpiderPattern {
 	/**
 	 * 电影中文名
 	 */
-	public static String DOUBAN_MOVIE_CHINESE_NAME_2 = ">(.+)的的演职员";
+	public static String DOUBAN_MOVIE_CHINESE_NAME_2 = ">(.+)的演职员";
 	
 }
