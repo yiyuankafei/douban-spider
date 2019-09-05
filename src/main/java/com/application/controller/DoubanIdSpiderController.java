@@ -111,7 +111,9 @@ public class DoubanIdSpiderController {
 		        	log.info("书名不符合规范：{}", book.getTitle());
 		        	return;
 		        }*/
-		        if (!webContent.contains("点击上传封面图片")) {
+		        if (webContent.contains("点击上传封面图片")) {
+		        	book.setCoverUrl("https://img3.doubanio.com/f/shire/5522dd1f5b742d1e1394a17f44d590646b63871d/pics/book-DEFAULT-lpic.gif");
+		        } else {
 		        	//封面URL
 		        	try {
 		        		book.setCoverUrl(doc.select("img[title=点击看大图]").get(0).attr("src"));
@@ -122,7 +124,7 @@ public class DoubanIdSpiderController {
 		        			book.setCoverUrl(element.attr("href"));
 		        		} catch (Exception ex) {
 		        			log.info("{}没有封面图", index);
-		        			return;
+		        			book.setCoverUrl("https://img3.doubanio.com/f/shire/5522dd1f5b742d1e1394a17f44d590646b63871d/pics/book-DEFAULT-lpic.gif");
 		        		}
 		        	}
 		        }
