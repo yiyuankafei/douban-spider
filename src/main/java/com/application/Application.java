@@ -56,7 +56,7 @@ public class Application extends SpringBootServletInitializer implements Command
 		bookController.generate(list.get(0).getDoubanIndex() - 1);*/
 		
 		//电影
-		movieController.generate(25993067l);
+		movieController.generate(3606716l);
 	}
 
 }
