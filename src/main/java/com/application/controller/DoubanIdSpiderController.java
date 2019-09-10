@@ -207,8 +207,11 @@ public class DoubanIdSpiderController {
         		 try {
         			 movie.setCoverUrl(doc.select("img[title=点击上传封面图片]").get(0).attr("src"));
         		 } catch (Exception ex) {
-        			 ex.printStackTrace();
-	        		 log.info("{}没有海报", index);
+        			 try {
+        				 movie.setCoverUrl(doc.select("img[title=点击看大图]").get(0).attr("src"));
+        			 } catch (Exception exc) {
+        				 log.info("{}没有海报", index);
+        			 }
         		 }
         	 }
 	        
